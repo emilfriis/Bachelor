@@ -1,7 +1,9 @@
 import numpy as np
 import statsmodels.api as sm
 
-def SADF_test(y, r0=0.05, lags=0, trend='c'):
+def SADF_test(
+        y, r0=0.05, lags=0, trend='c'
+        ):
     """
     Computes the SADF statistic:
         SADF = sup_{r ∈ [r0,1]} ADF(r)
@@ -29,23 +31,23 @@ def SADF_test(y, r0=0.05, lags=0, trend='c'):
         Corresponding r values
     """
 
-    y = np.asarray(y)
-    T = len(y)
+    y = np.asarray(y) # Ensure y is a numpy array
+    T = len(y) # Define T as total sample size
 
-    # Minimum window size τ0 = floor(r0 T)
-    tau0 = int(np.floor(r0 * T))
+    # Minimum window size / smallest estimation window τ0 = floor(r0 T)
+    tau0 = int(np.floor(r0 * T)) 
 
     adf_path = []
     r_path = []
 
     # Loop over τ = τ0, τ0+1, ..., T
-    for tau in range(tau0, T + 1):
+    for tau in range(tau0, T + 1): # loop from τ0 to T inclusive
 
         r = tau / T                      # r = τ / T
         y_sub = y[:tau]                  # Subsample of size τ
 
         # Construct ADF regression
-        dy = np.diff(y_sub)
+        dy = np.diff(y_sub) 
         y_lag = y_sub[:-1]
 
         X = y_lag.reshape(-1, 1)
