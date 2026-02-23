@@ -4,5 +4,3 @@ Created by:
 
 - Emil Rand Friis-Hasché
 - Tobias Frium Jordhøi
-
-Tobias sync test
