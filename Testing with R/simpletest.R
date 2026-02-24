@@ -21,7 +21,8 @@ x <- log(px)
 x <- na.omit(x)
 
 # Quick sanity check
-head(x); tail(x)
+head(x)
+tail(x)
 
 # A simple starting point: no ADF lags (lag = 0)
 # You can change lag later (see notes below)
