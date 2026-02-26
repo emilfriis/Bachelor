@@ -1,0 +1,32 @@
+(1)
+
+Jeg bruger P_t.csv filen som er prisserien for simulationen af P_t hvor rho ændres hver 10. periode
+
+(2)
+
+Jeg bruger følgende til kritiske værdier
+
+- min window size = floor((0.01 + 1.8 / sqrt(n)) * n), hvor n = antallet af observationer
+- nrep = 1999
+- seed = 123
+
+Se evt .R filen
+
+(3)
+
+Resultater: 
+
+Test statistikker:
+
+       id     adf   sadf   gsadf
+  series1  -4.309  -1.98  0.4284
+
+  gsadf_panel
+       0.4284
+
+Kritiske værdier:
+
+  sig       adf   sadf  gsadf
+   90  -0.41182  1.093  1.875
+   95  -0.04046  1.389  2.115
+   99   0.63198  1.950  2.611
