@@ -1,7 +1,7 @@
 import numpy as np                     # Import NumPy for numerical operations and random draws
 import pandas as pd                    # Import pandas for Series objects
 
-def simulate_bubble(                   # Define a function that simulates a price with a temporary bubble
+def simulate_bubble_uniform_rho(                   # Define a function that simulates a price with a temporary bubble
     T=200,                             # Total number of time periods
     rho=1,                             # Autocorrelation of the fundamental:
                                        #   - scalar → constant over time
