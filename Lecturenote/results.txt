@@ -6,7 +6,7 @@ Jeg bruger P_t.csv filen som er prisserien for simulationen af P_t hvor rho ænd
 
 Jeg bruger følgende til kritiske værdier
 
-- min window size = floor((0.01 + 1.8 / sqrt(n)) * n), hvor n = antallet af observationer
+- min window size = 0.05*T
 - nrep = 1999
 - seed = 123
 
@@ -16,17 +16,18 @@ Se evt .R filen
 
 Resultater: 
 
-Test statistikker:
+── radf (minw = 27, lag = 0) ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-       id     adf   sadf   gsadf
-  series1  -4.309  -1.98  0.4284
+       id        adf       sadf      gsadf
+  series1  -4.308903  -1.980101  0.4283844
 
   gsadf_panel
-       0.4284
+    0.4283844
 
-Kritiske værdier:
 
-  sig       adf   sadf  gsadf
-   90  -0.41182  1.093  1.875
-   95  -0.04046  1.389  2.115
-   99   0.63198  1.950  2.611
+── Monte Carlo (minw = 10, nrep = 1999) ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  sig          adf      sadf     gsadf
+   90  -0.41181629  1.241568  2.590489
+   95  -0.04046241  1.537622  3.006117
+   99   0.63197979  2.221317  3.888294
