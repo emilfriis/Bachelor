@@ -2,7 +2,7 @@ import numpy as np
 import statsmodels.api as sm
 
 def GSADF_test(
-        y, r0=0.05, lags=0, trend='c'
+        y, r0=0.05, lags=1, trend='c'
         ):
     """
     Computes the GSADF statistic:
