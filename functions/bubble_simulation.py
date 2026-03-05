@@ -9,8 +9,8 @@ def simulate_bubble(                   # Define a function that simulates a pric
     sigma_b=0.5,                       # Standard deviation of bubble shocks
     t_start=75,                        # Period where bubble begins
     t_end=100,                         # Period where bubble collapses
-    P0=10,                             # Initial fundamental price
-    B0=4,                              # Initial bubble size
+    P0=0,                             # Initial fundamental price
+    B0=0,                              # Initial bubble size
     seed=42                            # Seed for reproducibility
 ):
     np.random.seed(seed)               # Fix random seed so results are reproducible
