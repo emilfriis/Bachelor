@@ -95,6 +95,33 @@ def _radf_core(y, dy, r0, lags, trend):
     return adf_full, sadf, gsadf, minw
 
 
+@njit
+def _radf_bsadf_core(y, dy, r0, lags, trend):
+
+    T = len(y)
+    minw = int(np.floor(r0 * T))
+
+    y_lag = y[:-1]
+
+    bsadf = np.empty(T)
+    bsadf[:] = np.nan
+
+    for r2 in range(minw, T + 1):
+
+        max_stat = -1e10
+
+        for r1 in range(0, r2 - minw + 1):
+
+            stat = _ols_tstat(dy, y_lag, r1, r2, lags, trend)
+
+            if stat > max_stat:
+                max_stat = stat
+
+        bsadf[r2 - 1] = max_stat
+
+    return bsadf, minw
+
+
 def radf(y, r0, lags=0, trend="c"):
     """
     Compute ADF, SADF and GSADF
@@ -111,6 +138,21 @@ def radf(y, r0, lags=0, trend="c"):
         "adf": adf,
         "sadf": sadf,
         "gsadf": gsadf,
+        "minw": minw,
+    }
+
+
+def radf_bsadf(y, r0, lags=0, trend="c"):
+
+    trend_map = {"n": 0, "c": 1, "ct": 2}
+    trend_id = trend_map[trend]
+
+    y, dy = _prepare_data(y)
+
+    bsadf, minw = _radf_bsadf_core(y, dy, r0, lags, trend_id)
+
+    return {
+        "bsadf": bsadf,
         "minw": minw,
     }
 
@@ -153,4 +195,61 @@ def radf_cv(y, r0, lags=0, trend="c", nrep=1999, seed=None):
             "sadf": np.quantile(sadf, 0.99),
             "gsadf": np.quantile(gsadf, 0.99),
         },
+    }
+
+
+def smooth_series(x, window=5): # brugerdefineret funktion til at glatte kritiske værdier, så det er lettere at se trends
+
+    y = x.copy()
+
+    for i in range(len(x)):
+
+        start = max(0, i-window)
+        end = min(len(x), i+window+1)
+
+        y[i] = np.nanmean(x[start:end])
+
+    return y
+
+
+def radf_bsadf_cv(T, r0, lags=0, trend="c", nrep=1999, seed=None):
+    """
+    Simulate BSADF critical value paths
+    """
+
+    rng = np.random.default_rng(seed)
+
+    trend_map = {"n": 0, "c": 1, "ct": 2}
+    trend_id = trend_map[trend]
+
+    minw = int(np.floor(r0 * T))
+
+    bsadf_sim = np.zeros((nrep, T))
+
+    for i in range(nrep):
+
+        eps = rng.standard_normal(T)
+        sim = np.cumsum(eps)
+
+        y, dy = _prepare_data(sim)
+
+        bsadf, _ = _radf_bsadf_core(y, dy, r0, lags, trend_id)
+
+        bsadf_sim[i] = bsadf
+
+    cv90 = np.nanquantile(bsadf_sim, 0.90, axis=0)
+    cv95 = np.nanquantile(bsadf_sim, 0.95, axis=0)
+    cv99 = np.nanquantile(bsadf_sim, 0.99, axis=0)
+
+    # smoothing (samme idé som i exuber)
+    cv90 = smooth_series(cv90)
+    cv95 = smooth_series(cv95)
+    cv99 = smooth_series(cv99)
+
+
+    return {
+        "90": cv90,
+        "95": cv95,
+        "99": cv99,
+        "minw": minw
     }
