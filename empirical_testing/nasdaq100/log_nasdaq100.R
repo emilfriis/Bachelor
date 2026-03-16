@@ -1,7 +1,7 @@
 library(exuber)
 
 # 1. Load series
-dat <- read.csv('empirical_testing/nasdaq100/data/log_nasdaq100.csv')
+dat <- read.csv('empirical_testing/nasdaq100/data/2015_log_nasdaq100.csv')
 y   <- ts(dat$Close)     # change after $ to the column name
 T   <- length(y)
 
@@ -23,8 +23,8 @@ res$bsadf   # test statistic
 
 # BSADF test statistic over time
 bsadf_stat <- data.frame(bsadf = as.numeric(res$bsadf))
-write.csv(bsadf_stat, "empirical_testing/nasdaq100/results/log_nasdaq100_bsadf_stat.csv", row.names = FALSE)
+write.csv(bsadf_stat, "empirical_testing/nasdaq100/results/2015_log_nasdaq100_bsadf_stat.csv", row.names = FALSE)
 
 # BSADF critical values (90, 95, 99)
 bsadf_cv <- as.data.frame(cv$bsadf_cv)        # keep all significance-level columns
-write.csv(bsadf_cv, "empirical_testing/nasdaq100/results/log_nasdaq100_bsadf_cv.csv", row.names = FALSE)
+write.csv(bsadf_cv, "empirical_testing/nasdaq100/results/2015_log_nasdaq100_bsadf_cv.csv", row.names = FALSE)
