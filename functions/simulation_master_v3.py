@@ -1,9 +1,6 @@
-# equations for simulation
+# equation for simulation
 
-# D_{t+1} = mu + rho*D_t + eps_{t+1}, eps ~ N(mu_D, sigma_D^2)                  # dividend process
-# P_t^f   = rho/(1+R-rho)*D_t + (mu + mu_D)*(1+R) / (R*(1 + R - rho))           # fundamental price
-# B_{t+1} = (1+R)B_t                                                            # bubble process
-# P_t     = P_t^f + B_t                                                         # stock price
+# P_t = dT^{-eta} + rho P_{t-1} + eps_t, eps ~ N(0, sigma^2)
 
 import numpy as np
 import pandas as pd
