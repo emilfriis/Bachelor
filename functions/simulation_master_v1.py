@@ -78,6 +78,7 @@ def simulate_price_with_bubbles(
     R: float = 0.04,                    # Growth rate of the bubble (e.g. 4%)
     sigma_b: float = 0.5,               # Std. dev. of bubble shocks
     bubble_decay: float = 0.7,          # Fraction of bubble that survives each period after the peak (0<decay<1)
+    eta: float = 20.0,                  # relative weight of the bubble relative to the fundamental
     # First bubble interval
     t_start1: Optional[int] = 75,       # Start of first bubble (inclusive)
     t_end1: Optional[int] = 100,        # End of first bubble (inclusive)
@@ -201,7 +202,7 @@ def simulate_price_with_bubbles(
                     B[t] = 0.0
 
         # ----- Total price -----
-        P[t] = Pf[t] + B[t]
+        P[t] = Pf[t] + eta * B[t]
 
     Pf_series = pd.Series(Pf, name="Fundamental")
     B_series = pd.Series(B, name="Bubble")

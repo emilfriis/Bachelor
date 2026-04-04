@@ -1,54 +1,35 @@
-# equations for simulation
+# Function for simulating bubble process with P = Pf + B
+# D_t = mu + rho*D_{t-1} + eps_{D,t}
+# P_t^f = mu/R + P_{t-1}^f + eps_{D,t} / R
+# B_t = (1+R)B_{t-1} + eps_{B,t}
+# P_t = P_t^f + B_t
 
-# D_{t+1} = mu + rho*D_t + eps_{t+1}, eps ~ N(mu_D, sigma_D^2)                  # dividend process
-# P_t^f   = rho/(1+R-rho)*D_t + (mu + mu_D)*(1+R) / (R*(1 + R - rho))           # fundamental price
-# P_t^f   = mu_D/R + P_{t-1}^f + eps_t^f
-# B_{t+1} = (1+R)B_t                                                            # bubble process
-# P_t     = P_t^f + B_t                                                         # stock price
+from typing import Optional
 
 import numpy as np
 import pandas as pd
 
-
 def simulate_price_with_bubbles(
-
-    # Sample size
-    T = 200,
-
-    # Parameters for discount rate and drift scaling
-    R = 0.04,
-    d = 1.0,
-    eta = 1.0,
-    
-    # Dividend process
-    rho = 1.0,
-    mu_D = 0.0,
-    sigma_D = 0.5,
-
-    # Bubble process
-    mu_B = 0.0,
-    sigma_B = 0.5, 
-    decay = 0.7,
-
-    # Multiple bubbles
-    include_bubble = False,
-    t_start1 = 75,
-    t_end1 = 100,
-    B0_1 = 0.0,
-    t_start2 = None,
-    t_end2 = None,
-    B0_2 = 0.0,
-    
-    # Initial values
-    D0 = 0.0,
-    B0 = 0.0,
-
-    # Seed
-    seed = None,
-):
-
-    # Derived dividend drift
-    mu = d * (T ** (-eta))
+    T: int = 200,
+    R: float = 0.04,
+    d: float = 1.0,
+    eta: float = 1.0,
+    mu: float = 0.0,
+    rho: float = 1.0,
+    sigma_D: float = 0.5,
+    sigma_B: float = 0.5,
+    decay: float = 0.7,
+    include_bubble: bool = False,
+    t_start1: Optional[int] = None,
+    t_end1: Optional[int] = None,
+    B0_1: float = 0.0,
+    t_start2: Optional[int] = None,
+    t_end2: Optional[int] = None,
+    B0_2: float = 0.0,
+    Pf0: float = 0.0,
+    B0: float = 0.0,
+    seed: Optional[int] = None,
+): 
 
     if seed is not None:
         np.random.seed(seed)
@@ -60,8 +41,7 @@ def simulate_price_with_bubbles(
     P = np.zeros(T)                    # Total observed price (fundamental + bubble)
 
     # Initial values at time t = 0
-    D[0] = D0
-    Pf[0] = (rho / (1.0 + R - rho)) * D[0] + (mu + mu_D) * (1.0 + R) / (R * (1.0 + R - rho))
+    Pf[0] = Pf0
     B[0] = B0
     P[0] = Pf[0] + B[0]
 
@@ -80,15 +60,10 @@ def simulate_price_with_bubbles(
         and t_start2 < T
         and t_start2 <= t_end2
     )
-
     # Loop over time
     for t in range(1, T):
-        # ----- Dividend and fundamental -----
-        eps_D = np.random.normal(mu_D, sigma_D)
-
-        D[t] = mu + rho * D[t - 1] + eps_D
-
-        Pf[t] = (rho / (1.0 + R - rho)) * D[t] + (mu + mu_D) * (1.0 + R) / (R * (1.0 + R - rho))
+        # ----- Fundamental process -----
+        Pf[t] = mu/R + Pf[t - 1] + np.random.normal(0.0, sigma_D)/R
 
         # ----- Bubble process -----
         if not include_bubble:
@@ -115,13 +90,12 @@ def simulate_price_with_bubbles(
                 # if there was a bubble in the previous period, let it
                 # decay geometrically instead of crashing to zero.
                 if B[t - 1] > 0.0:
-                    # Clamp decay into [0,1] to avoid explosions or sign flips
-                    d_eff = float(decay)
-                    if d_eff <= 0.0:
-                        d_eff = 0.0
-                    elif d_eff >= 1.0:
-                        d_eff = 1.0
-                    B[t] = d_eff * B[t - 1] + np.random.normal(0.0, sigma_B)
+                    decay = float(bubble_decay)
+                    # Clamp decay into (0,1) to avoid explosions or sign flips
+                    if decay <= 0.0:
+                        decay = 0.0
+
+                    B[t] = decay * B[t - 1] + np.random.normal(0.0, sigma_B)
                     B[t] = max(B[t], 0.0)
                 else:
                     B[t] = 0.0
@@ -129,11 +103,7 @@ def simulate_price_with_bubbles(
         # ----- Total price -----
         P[t] = Pf[t] + B[t]
 
-    D_series = pd.Series(D, name="Dividend")
     Pf_series = pd.Series(Pf, name="Fundamental")
     B_series = pd.Series(B, name="Bubble")
     P_series = pd.Series(P, name="Price")
-
-    return D_series, Pf_series, B_series, P_series
-
-__all__ = ["simulate_price_with_bubbles"]
+    return Pf_series, B_series, P_series
